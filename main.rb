@@ -10,8 +10,10 @@ require_relative 'services/worker'
 # load env
 env_filepath = './env.yml'
 env_string = File.exist?(env_filepath) ? File.read(env_filepath) : ''
-YAML.load(env_string).each { |k, v| ENV[k] = v }
+YAML.safe_load(env_string).each { |k, v| ENV[k] = v }
 
+# use following line to read represent_anchors.csv to Anchors
+# represent_anchors = read_anchors_from_csv './data/represent_anchors.csv'
 def read_anchors_from_csv(it, **opts)
   anchors = []
   CSV.foreach(it, headers: true) do |row|
@@ -24,6 +26,8 @@ def read_anchors_from_csv(it, **opts)
   anchors
 end
 
+# use following line to save represent Anchors to represent_anchors.csv
+# save_anchors_to_csv('./data/represent_anchors.csv', represent_anchors)
 def save_anchors_to_csv(it, anchors, mode: 'w')
   CSV.open(it, mode) do |csv|
     csv << Anchor.to_csv_headers
@@ -36,13 +40,12 @@ end
 # step 1 : read unnamed.csv to Anchors
 anchors = read_anchors_from_csv('./data/unnamed.csv', lng: 'lon', group: 'anchor_group')
 
-# step 2 : grouping Anchors by group
-#          find each group's represent anchor
+# step 2 : grouping Anchors by group, find each group's represent anchor
 anchor_groups = anchors.group_by(&:group)
 represent_anchors = anchor_groups.map do |group, ary|
   # avg lat, lng
   lat = ary.map(&:lat).sum / ary.length
-  lng = ary.map(&:lat).sum / ary.length
+  lng = ary.map(&:lng).sum / ary.length
   Anchor.new lat, lng, group
 end
 
@@ -60,8 +63,4 @@ represent_anchors.each do |anchor|
   end
 end
 worker.work
-
-# step 4 : save represent anchors to represent_anchors.csv
 save_anchors_to_csv('./data/represent_anchors.csv', represent_anchors)
-# use following line to read represent_anchors.csv to Anchors
-# represent_anchors = read_anchors_from_csv './data/represent_anchors.csv'
