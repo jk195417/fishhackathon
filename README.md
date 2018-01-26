@@ -23,5 +23,9 @@ what_3_words_key: 'your-what-3-words-key-here'
 # Run
 
 ```bash
-$ ruby main.rb
+$ ruby tasks/find_represent_anchors.rb
+$ ruby tasks/get_what_3_words.rb
+$ ruby tasks/get_elevations.rb
 ```
+
+results at `represent_anchors.csv`
