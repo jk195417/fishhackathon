@@ -1,2 +1,4 @@
 
 env.yml
+.DS_Store
+*.log
